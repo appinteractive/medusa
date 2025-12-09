@@ -71,7 +71,8 @@ const expectedMenuItems = `
             path: "/one",
             nested: undefined,
             rank: undefined,
-            translationNs: undefined
+            translationNs: undefined,
+            hidden: undefined
           },
           {
             label: RouteConfig1.label,
@@ -79,7 +80,8 @@ const expectedMenuItems = `
             path: "/two",
             nested: undefined,
             rank: undefined,
-            translationNs: undefined
+            translationNs: undefined,
+            hidden: undefined
           },
           {
             label: RouteConfig2.label,
@@ -87,7 +89,8 @@ const expectedMenuItems = `
             path: "/three",
             nested: "/products",
             rank: undefined,
-            translationNs: undefined
+            translationNs: undefined,
+            hidden: undefined
           }
         ]
       `
@@ -202,7 +205,8 @@ describe("generateMenuItems", () => {
           path: "/analytics",
           nested: undefined,
           rank: 1,
-          translationNs: undefined
+          translationNs: undefined,
+          hidden: undefined
         },
         {
           label: RouteConfig1.label,
@@ -210,7 +214,8 @@ describe("generateMenuItems", () => {
           path: "/reports",
           nested: undefined,
           rank: 2,
-          translationNs: undefined
+          translationNs: undefined,
+          hidden: undefined
         }
       ]
     `
@@ -256,7 +261,8 @@ describe("generateMenuItems", () => {
           path: "/custom",
           nested: undefined,
           rank: undefined,
-          translationNs: RouteConfig0.translationNs
+          translationNs: RouteConfig0.translationNs,
+          hidden: undefined
         }
       ]
     `
@@ -335,7 +341,8 @@ describe("generateMenuItems", () => {
           path: "/first",
           nested: undefined,
           rank: 1,
-          translationNs: undefined
+          translationNs: undefined,
+          hidden: undefined
         },
         {
           label: RouteConfig1.label,
@@ -343,7 +350,8 @@ describe("generateMenuItems", () => {
           path: "/second",
           nested: undefined,
           rank: undefined,
-          translationNs: undefined
+          translationNs: undefined,
+          hidden: undefined
         },
         {
           label: RouteConfig2.label,
@@ -351,13 +359,61 @@ describe("generateMenuItems", () => {
           path: "/third",
           nested: undefined,
           rank: 0,
-          translationNs: undefined
+          translationNs: undefined,
+          hidden: undefined
         }
       ]
     `
 
     expect(utils.normalizeString(result.code)).toEqual(
       utils.normalizeString(expectedMixedMenuItems)
+    )
+  })
+
+  it("should handle hidden callback property", async () => {
+    const mockFileWithHidden = `
+      import { defineRouteConfig } from "@medusajs/admin-sdk"
+
+      const Page = () => {
+          return <div>Admin Only</div>
+      }
+
+      export const config = defineRouteConfig({
+          label: "Admin Only",
+          hidden: (user) => !user?.metadata?.roles?.includes("admin"),
+      })
+
+      export default Page
+    `
+
+    const mockFiles = ["Users/user/medusa/src/admin/routes/admin-only/page.tsx"]
+    vi.mocked(utils.crawl).mockResolvedValue(mockFiles)
+    vi.mocked(fs.readFile).mockResolvedValue(mockFileWithHidden)
+
+    const result = await generateMenuItems(
+      new Set(["Users/user/medusa/src/admin"])
+    )
+
+    expect(result.imports).toEqual([
+      `import { config as RouteConfig0 } from "Users/user/medusa/src/admin/routes/admin-only/page.tsx"`,
+    ])
+
+    const expectedOutput = `
+      menuItems: [
+        {
+          label: RouteConfig0.label,
+          icon: undefined,
+          path: "/admin-only",
+          nested: undefined,
+          rank: undefined,
+          translationNs: undefined,
+          hidden: RouteConfig0.hidden
+        }
+      ]
+    `
+
+    expect(utils.normalizeString(result.code)).toEqual(
+      utils.normalizeString(expectedOutput)
     )
   })
 })

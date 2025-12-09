@@ -31,6 +31,7 @@ type RouteConfig = {
   nested?: NestedRoutePosition
   rank?: number
   translationNs?: string
+  hidden: boolean
 }
 
 type MenuItem = {
@@ -40,6 +41,7 @@ type MenuItem = {
   nested?: NestedRoutePosition
   rank?: number
   translationNs?: string
+  hidden?: string
 }
 
 type MenuItemResult = {
@@ -69,14 +71,15 @@ function generateCode(results: MenuItemResult[]): string {
 }
 
 function formatMenuItem(route: MenuItem): string {
-  const { label, icon, path, nested, rank, translationNs } = route
+  const { label, icon, path, nested, rank, translationNs, hidden } = route
   return `{
     label: ${label},
     icon: ${icon || "undefined"},
     path: "${path}",
     nested: ${nested ? `"${nested}"` : "undefined"},
     rank: ${rank !== undefined ? rank : "undefined"},
-    translationNs: ${translationNs ? `${translationNs}` : "undefined"}
+    translationNs: ${translationNs ? `${translationNs}` : "undefined"},
+    hidden: ${hidden || "undefined"}
   }`
 }
 
@@ -141,6 +144,7 @@ function generateMenuItem(
     translationNs: config.translationNs
       ? `${configName}.translationNs`
       : undefined,
+    hidden: config.hidden ? `${configName}.hidden` : undefined,
   }
 }
 
@@ -279,6 +283,7 @@ function processConfigProperties(
     nested: nestedValue as NestedRoutePosition | undefined,
     rank: rankValue,
     translationNs: translationNsValue,
+    hidden: hasProperty("hidden"),
   }
 }
 

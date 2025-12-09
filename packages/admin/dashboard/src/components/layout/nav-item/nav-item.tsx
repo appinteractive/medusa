@@ -1,3 +1,4 @@
+import { HttpTypes } from "@medusajs/types"
 import { Kbd, Text, clx } from "@medusajs/ui"
 import { Collapsible as RadixCollapsible } from "radix-ui"
 import {
@@ -18,6 +19,7 @@ type NestedItemProps = {
   label: string
   to: string
   translationNs?: string
+  hidden?: (user: HttpTypes.AdminUser | null) => boolean
 }
 
 export type INavItem = {
@@ -29,6 +31,7 @@ export type INavItem = {
   from?: string
   nested?: string
   translationNs?: string
+  hidden?: (user: HttpTypes.AdminUser | null) => boolean
 }
 
 const BASE_NAV_LINK_CLASSES =

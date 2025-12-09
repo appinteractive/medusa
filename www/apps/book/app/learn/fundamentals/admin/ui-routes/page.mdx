@@ -108,6 +108,7 @@ The configuration object is created using `defineRouteConfig` from the Medusa Fr
 - `label`: the sidebar item's label.
 - `icon`: an optional React component used as an icon in the sidebar.
 - `rank`: an optional number to order the route among sibling routes. Learn more in the [Specify UI Route Sidebar Rank](#specify-ui-route-sidebar-rank) section.
+- `hidden`: an optional callback function to conditionally hide the sidebar item. Learn more in the [Conditionally Hide Sidebar Item](#conditionally-hide-sidebar-item) section.
 
 The above example adds a new sidebar item with the label `Custom Route` and an icon from the [Medusa UI Icons package](!ui!/icons/overview).
 
@@ -281,6 +282,53 @@ export const config = defineRouteConfig({
 ```
 
 In this example, the "Order Insights" item will appear before the "Order Reports" item under the parent "Orders" item in the sidebar.
+
+### Conditionally Hide Sidebar Item
+
+You can conditionally hide a sidebar item based on the current user by using the `hidden` property passed to `defineRouteConfig`. This is useful for implementing permission-based visibility.
+
+For example, to hide a route from users who don't have an "admin" role in their metadata:
+
+export const hiddenHighlights = [
+  ["17", "hidden", "Conditionally hide the sidebar item."]
+]
+
+```tsx title="src/admin/routes/admin-only/page.tsx" highlights={hiddenHighlights}
+import { defineRouteConfig } from "@medusajs/admin-sdk"
+import { LockClosedSolid } from "@medusajs/icons"
+import { Container, Heading } from "@medusajs/ui"
+
+const AdminOnlyPage = () => {
+  return (
+    <Container className="divide-y p-0">
+      <div className="flex items-center justify-between px-6 py-4">
+        <Heading level="h2">Admin Only Content</Heading>
+      </div>
+    </Container>
+  )
+}
+
+export const config = defineRouteConfig({
+  label: "Admin Only",
+  icon: LockClosedSolid,
+  hidden: (user) => !user?.metadata?.roles?.includes("admin"),
+})
+
+export default AdminOnlyPage
+```
+
+The `hidden` property accepts a callback function that:
+
+- Receives the current authenticated user object (or `null` if not authenticated)
+- Returns `true` to hide the item, `false` to show it
+
+The user object includes `id`, `email`, `first_name`, `last_name`, and `metadata` properties. You can store custom roles or permissions in the `metadata` field.
+
+<Note title="Important" type="warning">
+
+The `hidden` property only hides the sidebar menu item. The route itself remains accessible via direct URL navigation. For true route protection, implement server-side middleware or API route guards.
+
+</Note>
 
 ---
 

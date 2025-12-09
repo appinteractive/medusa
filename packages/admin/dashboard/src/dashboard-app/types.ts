@@ -6,6 +6,7 @@ import {
   InjectionZone,
   NestedRoutePosition,
 } from "@medusajs/admin-shared"
+import { HttpTypes } from "@medusajs/types"
 import { ComponentType } from "react"
 import { LoaderFunction } from "react-router-dom"
 import { ZodFirstPartySchemaTypes } from "zod"
@@ -26,6 +27,7 @@ export type MenuItemExtension = {
   nested?: NestedRoutePosition
   rank?: number
   translationNs?: string
+  hidden?: (user: HttpTypes.AdminUser | null) => boolean
 }
 
 export type WidgetExtension = {

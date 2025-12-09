@@ -5,6 +5,7 @@ import { Fragment, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useLocation } from "react-router-dom"
 
+import { useMe } from "../../../hooks/api/users"
 import { useExtension } from "../../../providers/extension-provider"
 import { INavItem, NavItem } from "../nav-item"
 import { Shell } from "../shell"
@@ -118,11 +119,14 @@ const getSafeFromValue = (from: string) => {
 
 const SettingsSidebar = () => {
   const { getMenu } = useExtension()
+  const { user } = useMe()
 
   const routes = useSettingRoutes()
   const developerRoutes = useDeveloperRoutes()
   const myAccountRoutes = useMyAccountRoutes()
-  const extensionRoutes = getMenu("settingsExtensions")
+  const extensionRoutes = getMenu("settingsExtensions").filter(
+    (item) => !item.hidden?.(user ?? null)
+  )
 
   const { t } = useTranslation()
 

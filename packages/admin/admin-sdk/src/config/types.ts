@@ -47,6 +47,21 @@ export interface RouteConfig {
    * ```
    */
   translationNs?: string
+
+  /**
+   * Optional callback to determine if the menu item should be hidden.
+   * Receives the current authenticated user and returns true to hide the item.
+   * This runs client-side with cached user data.
+   *
+   * Note: This only hides the menu item, not the route itself. For true route
+   * protection, implement server-side middleware.
+   *
+   * @example
+   * ```ts
+   * hidden: (user) => !user?.metadata?.roles?.includes("admin")
+   * ```
+   */
+  hidden?: (user: { id: string; email: string; metadata?: Record<string, unknown> } | null) => boolean
 }
 
 export type CustomFormField<

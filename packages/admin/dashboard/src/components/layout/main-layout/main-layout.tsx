@@ -19,6 +19,7 @@ import { Collapsible as RadixCollapsible } from "radix-ui"
 import { useTranslation } from "react-i18next"
 
 import { useStore } from "../../../hooks/api/store"
+import { useMe } from "../../../hooks/api/users"
 import { Skeleton } from "../../common/skeleton"
 import { INavItem, NavItem } from "../../layout/nav-item"
 import { Shell } from "../../layout/shell"
@@ -284,17 +285,32 @@ const Searchbar = () => {
 
 const CoreRouteSection = () => {
   const coreRoutes = useCoreRoutes()
+  const { user } = useMe()
 
   const { getMenu } = useExtension()
 
   const menuItems = getMenu("coreExtensions")
 
-  menuItems.forEach((item) => {
+  // Filter out hidden items before adding to nested routes
+  const visibleMenuItems = menuItems.filter(
+    (item) => !item.hidden?.(user ?? null)
+  )
+
+  visibleMenuItems.forEach((item) => {
     if (item.nested) {
       const route = coreRoutes.find((route) => route.to === item.nested)
       if (route) {
         route.items?.push(item)
       }
+    }
+  })
+
+  // Filter hidden nested items within core routes
+  coreRoutes.forEach((route) => {
+    if (route.items && route.items.length > 0) {
+      route.items = route.items.filter(
+        (item) => !item.hidden?.(user ?? null)
+      )
     }
   })
 
@@ -311,8 +327,11 @@ const CoreRouteSection = () => {
 const ExtensionRouteSection = () => {
   const { t } = useTranslation()
   const { getMenu } = useExtension()
+  const { user } = useMe()
 
-  const menuItems = getMenu("coreExtensions").filter((item) => !item.nested)
+  const menuItems = getMenu("coreExtensions").filter(
+    (item) => !item.nested && !item.hidden?.(user ?? null)
+  )
 
   if (!menuItems.length) {
     return null
