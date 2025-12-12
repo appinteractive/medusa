@@ -7943,7 +7943,9 @@ module.exports = defineConfig({
       resolve: "@medusajs/medusa/workflow-engine-redis",
       options: {
         redis: {
-          url: process.env.REDIS_URL,
+          // Note: This was `url` before v2.12.2
+          // It's now deprecated in favor of `redisUrl`
+          redisUrl: process.env.REDIS_URL,
         },
       },
     },
@@ -48157,7 +48159,8 @@ module.exports = defineConfig({
       resolve: "@medusajs/medusa/workflow-engine-redis",
       options: {
         redis: {
-          url: process.env.WE_REDIS_URL,
+          redisUrl: process.env.WE_REDIS_URL,
+          // ...other Redis options
         },
       },
     },
@@ -48178,9 +48181,20 @@ WE_REDIS_URL=<YOUR_REDIS_URL>
 |Option|Description|Required|Default|
 |---|---|---|---|---|---|---|
 |\`url\`|A string indicating the Redis connection URL.|No. If not provided, you must provide the |-|
-|\`options\`|An object of Redis options. Refer to the |No|-|
-|\`queueName\`|The name of the queue used to keep track of retries and timeouts.|No|\`medusa-workflows\`|
+|\`redisUrl\`|A string indicating the Redis connection URL.|No. If not provided, you must provide the |-|
 |\`pubsub\`|A connection object having the following properties:|No. If not provided, you must provide the |-|
+|\`queueName\`|The name of the queue used to keep track of retries and timeouts for workflow executions.|No|\`medusa-workflows\`|
+|\`jobQueueName\`|The name of the queue used to keep track of retries and timeouts for scheduled jobs.|No|\`medusa-workflows-jobs\`|
+|\`options\`|An object of Redis options. Refer to the |No|-|
+|\`redisOptions\`|An object of Redis options. Refer to the |No|-|
+|\`queueOptions\`|An object of options to pass to all BullMQ instances. Refer to |No|-|
+|\`workerOptions\`|An object of options to pass to all BullMQ worker instances. Refer to |No|-|
+|\`mainQueueOptions\`|An object of options to pass to the main BullMQ queue instance for workflows. Refer to |No|-|
+|\`mainWorkerOptions\`|An object of options to pass to the main BullMQ worker instance for workflows. Refer to |No|-|
+|\`jobQueueOptions\`|An object of options to pass to the main BullMQ workflow queue instance for scheduled jobs. Refer to |No|-|
+|\`jobWorkerOptions\`|An object of options to pass to the main BullMQ workflow worker instance for scheduled jobs. Refer to |No|-|
+|\`cleanerQueueOptions\`|An object of options to pass to the BullMQ cleaner queue instance. Refer to |No|-|
+|\`cleanerWorkerOptions\`|An object of options to pass to the BullMQ cleaner worker instance. Refer to |No|-|
 
 ## Test the Module
 
